@@ -1,0 +1,255 @@
+<!-- Yi Xie, Charlotte List
+This program uses an external javascript library to display charts.-->
+<!--
+													Student 1 contribution (%)		Student 2 contribution (%)
+Assessment by Student 1							50														50
+Assessment by Student 2							50														50
+-->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <!-- declare style css file -->
+  <link rel="stylesheet" type="text/css" href="hw3.css" />
+  <script src="js/Chart.js"></script>
+  <!--javascript code here -->
+  <script type="text/javascript">
+    //global variables initiated here, can use them throughout
+    var canvasWidth = 750;
+    var canvasHeight1 = 400;
+    var canvasHeight2 = 300;
+    var myGraph1;
+    var myGraph2;
+    var canvContext;
+    var canvContext2;
+
+    //to toggle through data sets need to have variables set to true and false
+    var disney = false;
+    var fox = false;
+    var warner = false;
+
+    var disneyData;
+    var foxData;
+    var warnerData;
+
+    //the closing price of a stock data set for line graph
+    var linechartData = {
+      labels : [],
+      datasets : [
+        //
+        {
+          fillColor : "rgba(0,0,220,0.25)",
+          strokeColor : "rgba(0,0,220,1)",
+          data : [],
+        },
+        {
+          fillColor : "rgba(0,220,0,0.25)",
+          strokeColor : "rgba(0,220,0,1)",
+          data : [],
+        },
+        {
+          fillColor : "rgba(220,0,0,0.25)",
+          strokeColor : "rgba(220,0,0,1)",
+          data : [],
+        }
+      ]
+    };
+
+    //volume data set for bar graoh
+    var barchartData = {
+      labels : [],
+      datasets : [
+        {
+          fillColor : "rgba(0,0,220,0.4)",
+          strokeColor : "rgba(0,0,220,1)",
+          data : [],
+        },
+        {
+          fillColor : "rgba(0,220,0,0.4)",
+          strokeColor : "rgba(0,220,0,1)",
+          data : [],
+        },
+        {
+          fillColor : "rgba(220,0,0,0.4)",
+          strokeColor : "rgba(220,0,0,1)",
+          data : [],
+        }
+      ]
+    };
+
+    //get the data from the corresponding json file
+    function getData(stockV, filename, n) {
+      var jsonhttp = new XMLHttpRequest();
+      //where the data is coming from
+      var url = filename;
+      //function is to handle the request when the file (data) comes back
+      jsonhttp.onreadystatechange = function() {
+          if (jsonhttp.readyState == 4 && jsonhttp.status == 200) {
+              //reading in json object
+              stockV = JSON.parse(jsonhttp.responseText);
+              stockV.Date.reverse();
+              //add the date as labels of the data
+              for (var i = 0; i < stockV.Date.length; i++) {
+                barchartData.labels[i] = stockV.Date[i];
+                linechartData.labels[i] = " "<--;
+              }
+              //divide the volume by a million (unit becomes million shares)
+              //add the volumn data to the dataset for the bar chart
+              for (var k = 0; k < stockV.Date.length; k++) {
+                var num = parseInt(stockV.Volume[k]);
+                var num2 = num / 1000000;
+                barchartData.datasets[n].data[k] = num2;
+              }
+              //add the closing price data to the dataset for the line chart
+              linechartData.datasets[n].data = stockV.Close;
+              drawChart();
+          }
+      };
+      //if the toggle variable equals true, asynchronously get the data
+      jsonhttp.open("GET", url, true);
+      jsonhttp.send();
+    }
+
+    //get the data each time for making the chart
+    //new http request
+    function loadData() {
+      //clear out all the data when all the data is disabled
+      if (disney == false && warner == false && fox == false) {
+        barchartData.labels = [];
+        linechartData.labels = [];
+        linechartData.datasets[0].data = [];
+        barchartData.datasets[0].data = [];
+        linechartData.datasets[2].data = [];
+        barchartData.datasets[2].data = [];
+        linechartData.datasets[1].data = [];
+        barchartData.datasets[1].data = [];
+        drawChart();
+      }
+
+      //get data when toggle variable is true
+      //empty the dataset if the toggle variable is false
+      if (disney == true) {
+        getData(disneyData, "disneydata.json", 0);
+      }
+      else {
+        linechartData.datasets[0].data = [];
+        barchartData.datasets[0].data = [];
+      }
+
+      if (warner == true) {
+        getData(warnerData, "warnerdata.json", 2);
+      }
+      else {
+        linechartData.datasets[2].data = [];
+        barchartData.datasets[2].data = [];
+      }
+
+      if (fox == true) {
+        getData(foxData, "foxdata.json", 1);
+      }
+      else {
+        linechartData.datasets[1].data = [];
+        barchartData.datasets[1].data = [];
+      }
+    }
+
+    //want to get a canvas
+    //canvContext to be able to draw on that element - new in HTML5
+    function prepareContext(){
+      //turn tooltips off
+      Chart.defaults.global.showTooltips = false;
+      canvContext = document.getElementById("lineChart").getContext("2d");
+      canvContext2 = document.getElementById("barChart").getContext("2d");
+      // get the object to draw on ^^
+      canvContext.canvas.width = canvasWidth;
+      canvContext2.canvas.width = canvasWidth;
+      // set canvas to defined size ^^
+      canvContext.canvas.height = canvasHeight1;
+      canvContext2.canvas.height = canvasHeight2;
+    }
+
+    // draw chart on canvas
+    function drawChart(){
+      myGraph1 = new Chart(canvContext).Line(linechartData);
+      myGraph2 = new Chart(canvContext2).Bar(barchartData);
+      // set canvas back to original size
+      canvContext.canvas.width = canvasWidth;
+      canvContext2.canvas.width = canvasWidth;
+      canvContext.canvas.height = canvasHeight1;
+      canvContext2.canvas.height = canvasHeight2;
+    }
+
+    //toggle fashion that turn the display of their corresponding graphs on and off
+    function toggled() {
+      if (disney == true) {
+        disney = false;
+      }
+      else if (disney == false) {
+        disney = true;
+      }
+      loadData();
+    }
+
+    function togglef() {
+      if (fox == true) {
+        fox = false;
+      }
+      else if (fox == false) {
+        fox = true;
+      }
+      loadData();
+    }
+
+    function togglew() {
+      if (warner == true) {
+        warner = false;
+      }
+      else if (warner == false) {
+        warner = true;
+      }
+      loadData();
+    }
+
+    //initialize the page
+    //display the blue color disney data when the page is first opened
+    function displayStart() {
+      prepareContext();
+      disney = true;
+      loadData();
+    }
+
+  </script>
+</head>
+
+<body onload="displayStart()">
+  <div>
+    <div>
+      <!--heading here-->
+      <h1> COMPARE ENTERTAINMENT STOCKS </h1>
+    </div>
+
+    <div>
+      <!--first canvas for line chart-->
+      <canvas id="lineChart"></canvas>
+    </div>
+
+    <div>
+      <!--second canvas for bar chart-->
+      <canvas id="barChart"></canvas>
+    </div>
+
+    <div>
+      <h4> Price (upper graph in $) and Trade Volume (lower graph in million shares) </h4>
+    </div>
+
+    <div>
+      <!--button for each stock - color coordinated by class -->
+      <button class="stock1" type="button" onclick="toggled()"> DIS </button>
+      <button class="stock2" type="button" onclick="togglef()"> FOX </button>
+      <button class="stock3" type="button" onclick="togglew()"> TWX </button>
+    </div>
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,495 @@
+<!-- Charlotte List and Connor Wu HW 4 -->
+<!-- Image Filter Webpage -->
+
+<!DOCTYPE HTML>
+
+<html>
+<head>
+  <!-- declare style css file -->
+  <link rel="stylesheet" type="text/css" href="hw4.css" />
+  <script src="rgb-hsv_converter.js"></script>
+  <script type="text/javascript">
+    //global variables
+    var canvasWidth = 400;
+    var canvasHeight = 400;
+    var canvContext;
+    var canvContext2;
+    var imageData;
+    var titles = [];
+
+    var sliderValue1 = 0.5;
+    var sliderValue2 = 0.5;
+    var sliderValue3 = 0.5;
+    var sliderValue4 = 0.2;
+
+    var rangeArray = [];
+
+    var xxL;
+    var yyL;
+    var xx2L;
+    var yy2L;
+    var xxM;
+    var yyM;
+    var xx2M;
+    var yy2M;
+    var xxR;
+    var yyR;
+    var xx2R;
+    var yy2R;
+
+    var r = 50;
+
+    function makeWheel(canvasID, position, rotate, xx, yy, xx2, yy2) {
+      var canv=document.getElementById(canvasID);
+      var c=canv.getContext("2d");
+
+      var w = canv.width;
+      var h = canv.height;
+
+      function pixelColor(imgd, x, y, r, g, b, a) {
+        idx = (x + y*imgd.width)*4;
+        imgd.data[idx  ] = r;
+        imgd.data[idx+1] = g;
+        imgd.data[idx+2] = b;
+        imgd.data[idx+3] = a;
+      }
+
+     var imgd = c.createImageData(w, h);
+     var pix = imgd.data;
+
+     var x, y;
+
+     for (var b = 0; b < 20; b+=.15) {
+       for(var t = 0.0; t < 2*Math.PI; t+=0.01){
+         x = Math.round((r-b)*Math.cos(t) + w/2);
+         y = Math.round((r-b)*Math.sin(t) + h/2);
+         rgbCol = hsvToRgb(t/(2*Math.PI), 1, 1);
+         pixelColor(imgd, x, y, rgbCol[0], rgbCol[1], rgbCol[2], 255);
+       }
+     }
+
+     c.putImageData(imgd, 0, 0);
+
+     if(canvasID == "myCanvas1") {
+       xxL = Math.round(r*Math.cos(rotate - position) + w/2);
+       yyL = Math.round(r*Math.sin(rotate - position) +h/2);
+
+       xx2L = Math.round(r*Math.cos(rotate + position) + w/2);
+       yy2L = Math.round(r*Math.sin(rotate + position) + h/2);
+       drawLines(c, w, h, xxL, yyL, xx2L, yy2L);
+     }
+     else if (canvasID == "myCanvas2") {
+       xxM = Math.round(r*Math.cos(rotate - position) + w/2);
+       yyM = Math.round(r*Math.sin(rotate - position) +h/2);
+       xx2M = Math.round(r*Math.cos(rotate + position) + w/2);
+       yy2M = Math.round(r*Math.sin(rotate + position) + h/2);
+       drawLines(c, w, h, xxM, yyM, xx2M, yy2M);
+     }
+     else {
+       xxR = Math.round(r*Math.cos(rotate - position) + w/2);
+       yyR = Math.round(r*Math.sin(rotate - position) +h/2);
+
+       xx2R = Math.round(r*Math.cos(rotate +position) + w/2);
+       yy2R = Math.round(r*Math.sin(rotate + position) + h/2);
+       drawLines(c, w, h, xxR, yyR, xx2R, yy2R);
+     }
+    }
+
+    function drawLines(c, w, h, xx, yy, xx2, yy2) {
+      c.strokeStyle = "white";
+      c.fillStyle = "white";
+      c.lineWidth = 2;
+      c.beginPath();
+      c.moveTo(w/2, h/2);
+      c.lineTo(xx, yy);
+      c.closePath();
+      c.stroke();
+      c.fill();
+
+      c.strokeStyle = "orange";
+      c.fillStyle = "orange";
+      c.beginPath();
+      c.moveTo(w/2, h/2);
+      c.lineTo(xx2, yy2);
+      c.closePath();
+      c.stroke();
+      c.fill();
+    }
+
+    function getData() {
+      var imghttp = new XMLHttpRequest();
+      //where the data is coming from
+      var url = "images.xml";
+      //function is to handle the request when the file (data) comes back
+      imghttp.onreadystatechange = function() {
+          if (imghttp.readyState == 4 && imghttp.status == 200) {
+              //reading in json object
+              imageData = imghttp.responseXML;
+              var root = imageData.documentElement;
+              var x = root.getElementsByTagName('fileName');
+              var y = root.getElementsByTagName('title');
+
+          }
+          createDropdown(x);
+          createTitleList(y);
+      }
+      //if the toggle variable equals true, asynchronously get the data
+      imghttp.open("GET", url, true);
+      imghttp.send();
+
+    }
+    //list of all the painting titles so we can index in to label
+    //the new paintings
+    function createTitleList(titleList) {
+      for (var k=0; k<titleList.length; k++) {
+        var file = titleList[k].innerHTML;
+        titles.push(file);
+      }
+    }
+    //dynamically populate the drop down menu from the xml file with the
+    //file name where the image can be found in the images folder
+    function createDropdown(fileNameList) {
+      var menu = document.getElementById("mySelect");
+
+        for (var j=0; j<fileNameList.length; j++) {
+          var file = fileNameList[j].innerHTML;
+          var opt = document.createElement("option");
+          opt.value = j;
+          opt.innerHTML = file;
+          menu.appendChild(opt);
+        }
+    }
+    //function that displays the original starting image in the canvas
+    //on load will put a default image from the selection
+    function displayImage() {
+      getData();
+      prepareCanvas();
+      makeWheel("myCanvas1", sliderValue4*(2*Math.PI), sliderValue1*(2*Math.PI), xxL, yyL, xx2L, yy2L);
+      makeWheel("myCanvas2", sliderValue4*(2*Math.PI), sliderValue2*(2*Math.PI), xxM, yyM, xx2M, yy2M);
+      makeWheel("myCanvas3", sliderValue4*(2*Math.PI), sliderValue3*(2*Math.PI), xxR, yyR, xx2R, yy2R);
+      canvContext.clearRect(0, 0, canvasWidth, canvasHeight);
+      var imgDraw = new Image();
+
+      imgDraw.onload = function() {
+        if (this.height > this.width) {
+          var factor = 0.7;
+          canvContext.drawImage(imgDraw, 5, 10, this.width*factor, canvasHeight);
+        }
+        else {
+          var factor = 0.6;
+          canvContext.drawImage(imgDraw, 5, 10, canvasWidth, this.height*factor);
+        }
+      //  displayText();
+      }
+      imgDraw.src = "images/the_scream.jpg";
+    }
+
+    function setValue1(newValue){
+			sliderValue1 = newValue;
+      makeWheel("myCanvas1", sliderValue4*(2*Math.PI), sliderValue1*(2*Math.PI), xxL, yyL, xx2L, yy2L);
+		}
+
+    function setValue2(newValue){
+      sliderValue2 = newValue;
+      makeWheel("myCanvas2", sliderValue4*(2*Math.PI), sliderValue2*(2*Math.PI), xxM, yyM, xx2M, yy2M);
+    }
+
+    function setValue3(newValue){
+      sliderValue3 = newValue;
+      makeWheel("myCanvas3", sliderValue4*(2*Math.PI), sliderValue3*(2*Math.PI), xxR, yyR, xx2R, yy2R);
+    }
+    //to adjust the size of the range
+    function setValue4(newValue) {
+      sliderValue4 = newValue;
+      console.log(sliderValue4);
+      makeWheel("myCanvas3", newValue*(2*Math.PI), sliderValue3*(2*Math.PI), xxL, yyL, xx2L, yy2L);
+      makeWheel("myCanvas2", newValue*(2*Math.PI), sliderValue2*(2*Math.PI), xxM, yyM, xx2M, yy2M);
+      makeWheel("myCanvas1", newValue*(2*Math.PI), sliderValue1*(2*Math.PI), xxR, yyR, xx2R, yy2R);
+    }
+
+    function filterImage() {
+      //displayText();
+      rangeArray = [];
+      var filterCH = document.getElementById("cb1");
+      var filterCH2 = document.getElementById("cb2");
+      var filterCH3 = document.getElementById("cb3");
+      //canvContext.clearRect(0, 0, canvasWidth, canvasHeight);
+    //  showSourceImage();
+
+
+
+      if (filterCH.checked) {
+        var high = (parseFloat(sliderValue1)+parseFloat(sliderValue4))%1.0;
+        var low = (parseFloat(sliderValue1) - parseFloat(sliderValue4)) % 1.0;
+        rangeArray.push(high);
+        rangeArray.push(low);
+        editImage("myCanvas1", sliderValue1);
+      }
+      else {
+        rangeArray.push(0);
+        rangeArray.push(0);
+      }
+      if (filterCH2.checked) {
+        high = (parseFloat(sliderValue2)+parseFloat(sliderValue4))%1.0;
+        low = (parseFloat(sliderValue2) - parseFloat(sliderValue4)) % 1.0;
+        rangeArray.push(high);
+        rangeArray.push(low);
+        editImage("myCanvas2", sliderValue2);
+      }
+      else {
+        rangeArray.push(0);
+        rangeArray.push(0);
+      }
+      if (filterCH3.checked) {
+        high = (parseFloat(sliderValue3)+parseFloat(sliderValue4))%1.0;
+        low = (parseFloat(sliderValue3) - parseFloat(sliderValue4)) % 1.0;
+        rangeArray.push(high);
+        rangeArray.push(low);
+        editImage("myCanvas3", sliderValue3);
+      }
+      else {
+        rangeArray.push(0);
+        rangeArray.push(0);
+      }
+      //canvContext.clearRect(0, 0, canvasWidth, canvasHeight);
+    //  showSourceImage();
+    //  displayText();
+
+
+    }
+
+    function editImage(canvasID, index) {
+      //source image from left canvas
+      var sourceImg = canvContext.getImageData(0, 0, canvasWidth, canvasHeight);
+      var pix = sourceImg.data;
+      //new image in right canvas
+      var destImg = canvContext2.createImageData(canvasWidth, canvasHeight);
+      var pix2 = destImg.data;
+
+    //  canvContext.clearRect(0, 0, canvasWidth, canvasHeight);
+
+      for(var y = 0; y < canvasHeight; y++)   {       // copy and change color pixel by pixel
+        for (var x = 0; x < canvasWidth; x++){
+          var idx = (canvasWidth*y+x)*4;
+          var hsv = rgbToHsv(pix[idx], pix[idx+1], pix[idx+2]);
+
+          if ((rangeArray[0] > rangeArray[1]) && (hsv[0] <= rangeArray[0] && hsv[0] >= rangeArray[1])) {
+              pix2[idx] = pix[idx];       // change color intensity
+              pix2[idx+1] = pix[idx+1];
+              pix2[idx+2] = pix[idx+2];
+              pix2[idx+3] = pix[idx+3];
+            }
+          else if ((rangeArray[1] > rangeArray[0]) && ((0 <= hsv[0] && hsv[0] <= rangeArray[0]) || (1 >= hsv[0] && hsv[0] >= rangeArray[1])))  {
+            pix2[idx] = pix[idx];       // change color intensity
+            pix2[idx+1] = pix[idx+1];
+            pix2[idx+2] = pix[idx+2];
+            pix2[idx+3] = pix[idx+3];
+          }
+          else if ((rangeArray[2] > rangeArray[3]) && (hsv[0] <= rangeArray[2] && hsv[0] >= rangeArray[3])) {
+            pix2[idx] = pix[idx];       // change color intensity
+            pix2[idx+1] = pix[idx+1];
+            pix2[idx+2] = pix[idx+2];
+            pix2[idx+3] = pix[idx+3];
+          }
+          else if ((rangeArray[3] > rangeArray[2]) && ((0 <= hsv[0] && hsv[0] <= rangeArray[2]) || (1 >= hsv[0] && hsv[0] >= rangeArray[3]))) {
+            pix2[idx] = pix[idx];       // change color intensity
+            pix2[idx+1] = pix[idx+1];
+            pix2[idx+2] = pix[idx+2];
+            pix2[idx+3] = pix[idx+3];
+          }
+          else if ((rangeArray[4] > rangeArray[5]) && (hsv[0] <= rangeArray[4] && hsv[0] >= rangeArray[5])) {
+            pix2[idx] = pix[idx];       // change color intensity
+            pix2[idx+1] = pix[idx+1];
+            pix2[idx+2] = pix[idx+2];
+            pix2[idx+3] = pix[idx+3];
+          }
+          else if ((rangeArray[5] > rangeArray[4]) && (0 <= hsv[0] && hsv[0] <= rangeArray[4]) || (1 >= hsv[0] && hsv[0] >= rangeArray[5])) {
+            pix2[idx] = pix[idx];       // change color intensity
+            pix2[idx+1] = pix[idx+1];
+            pix2[idx+2] = pix[idx+2];
+            pix2[idx+3] = pix[idx+3];
+          }
+          else if (pix[idx+3]==0) {
+            pix2[idx] = 0;       // change color intensity
+            pix2[idx+1] = 0;
+            pix2[idx+2] = 0;
+            pix2[idx+3] = 0;
+          }
+          else {
+            pix2[idx] = 0;       // change color intensity
+            pix2[idx+1] = 0;
+            pix2[idx+2] = 0;
+            pix2[idx+3] = 255;
+            }
+          }
+    }
+        canvContext2.clearRect(0, 0, canvasWidth, canvasHeight);
+        canvContext2.putImageData(destImg, 0, 0);
+        displayText2();
+
+        canvContext.clearRect(0, 0, canvasWidth, canvasHeight);
+        showSourceImage();
+        displayText();
+    }
+
+    //function that displays both the new image and the source image
+    function showImages() {
+      canvContext.clearRect(0, 0, canvasWidth, canvasHeight);
+      canvContext2.clearRect(0, 0, canvasWidth, canvasHeight);
+      showSourceImage();
+      displayText();
+      //showNewImage();
+    }
+    //displays new image with title in the correct canvas
+    function showNewImage() {
+      var selectValue = document.getElementById("mySelect").options[document.getElementById("mySelect").selectedIndex].text;
+      var imgD = new Image();
+      imgD.onload = function() {
+        if (this.height > this.width) {
+          var factor = 0.7;
+          canvContext2.drawImage(imgD, 5, 10, this.width*factor, canvasHeight);
+        }
+        else {
+          var factor = 0.8;
+          canvContext2.drawImage(imgD, 5, 10, canvasWidth, this.height*factor);
+        }
+        //displayText2();
+      }
+      var txt = "images/";
+      txt += selectValue;
+      imgD.src = txt;
+    }
+
+    //displays the original image with our names on it in left canvas
+    function showSourceImage() {
+      var selectValue = document.getElementById("mySelect").options[document.getElementById("mySelect").selectedIndex].text;
+      var imgD = new Image();
+      imgD.onload = function() {
+        if (this.height > this.width) {
+          var factor = 0.7;
+          canvContext.drawImage(imgD, 5, 10, this.width*factor, canvasHeight);
+        }
+        else {
+          var factor = 0.8;
+          canvContext.drawImage(imgD, 5, 10, canvasWidth, this.height*factor);
+        }
+        //displayText();
+      }
+      var txt = "images/";
+      txt += selectValue;
+      imgD.src = txt;
+    }
+
+    //writes our names in the left canvas - source image
+    function displayText() {
+      canvContext.font = "15pt Arial";
+      canvContext.fillStyle = "white";
+      canvContext.fillText("Connor & Charlotte", 10, 40);
+    }
+
+    //writes the painting title in the right canvas
+    function displayText2() {
+      canvContext2.font = "15pt Arial";
+      canvContext2.fillStyle = "yellow";
+      var selectValue = document.getElementById("mySelect").options[document.getElementById("mySelect").selectedIndex].value;
+      var txt = titles[selectValue];
+      canvContext2.fillText(txt, 10, 40);
+    }
+
+    //prepares the canvases to put the images in -- declares width height
+    //and variable names
+    function prepareCanvas() {
+      //get elements by ID of canvases
+      canvContext = document.getElementById("sourcePic").getContext("2d");
+      canvContext2 = document.getElementById("filterPic").getContext("2d");
+      // get the object to draw on ^^
+      canvContext.canvas.width = canvasWidth;
+      canvContext2.canvas.width = canvasWidth;
+      // set canvas to defined size ^^
+      canvContext.canvas.height = canvasHeight;
+      canvContext2.canvas.height = canvasHeight;
+    }
+  </script>
+</head>
+<!-- on load want to display the first image -->
+<body onload="displayImage()">
+  <div>
+    <!-- header bar at the top of the page -->
+    <div class= "titleBar">
+      <h4> COM214 - Multiple Image Filters </h4>
+    </div>
+
+    <!-- creates the light grey background box where the filter controls are -->
+    <div class = "filterBox">
+
+      <div class = "filterBackground">
+        <!-- slider and checkbox here -->
+        <div class = "filterHeader">
+          <p> Filter 1
+          <input type="checkbox" id="cb1">
+          <input type="range" id="slider1" min="0" max="1" value="0.5" step=".01" oninput="setValue1(this.value)" /> </p>
+        </div>
+
+        <div class = "filterWheel">
+          <canvas id="myCanvas1" width="154" height="105" >
+		      Your browser does not support the canvas element.
+	        </canvas>
+
+        </div>
+      </div>
+
+      <div class = "filterBackground">
+        <!-- slider and checkbox here -->
+        <div class = "filterHeader">
+          <p> Filter 2
+          <input type="checkbox" id="cb2">
+          <input type="range" id="slider2" min="0" max="1" value="0.5" step=".01" oninput="setValue2(this.value)"  /> </p>
+        </div>
+
+        <div class = "filterWheel">
+
+          <canvas id="myCanvas2" width="154" height="105" >
+		      Your browser does not support the canvas element.
+	        </canvas>
+
+        </div>
+      </div>
+
+      <div class = "filterBackground">
+        <div class = "filterHeader">
+          <p> Filter 3
+          <input type="checkbox" id="cb3">
+          <input type="range" id="slider3" min="0" max="1" value="0.5" step=".01" oninput="setValue3(this.value)" /> </p>
+        </div>
+        <div class = "filterWheel">
+          <canvas id="myCanvas3" width="154" height="105" >
+		      Your browser does not support the canvas element.
+	        </canvas>
+        </div>
+      </div>
+      <div class = "filterBackground">
+        <div class = "filterHeader">
+          <p> Filter Ranges
+          <input type="range" id="slider4" min="0" max="1" value="0.2" step=".01" oninput="setValue4(this.value)" /> </p>
+        </div>
+        <div class = "filterWheel" >
+          <p> Image </p>
+          <select id="mySelect" onchange="showImages()">
+    			</select>
+          <button class = "filterButton" type = "button" onclick = "filterImage()"> -- Filter -- </button>
+        </div>
+      </div>
+    </div>
+    <div class = "images">
+      <!--div with canvas for the source image  -->
+      <div class = "sourceImage">
+        <canvas id="sourcePic"> </canvas>
+      </div>
+      <!-- canvas for the new filtered image here-->
+      <div class = "editedImage">
+        <canvas id="filterPic"> </canvas>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

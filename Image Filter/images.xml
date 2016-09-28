@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<collection>
+  <image>
+    <title> The Scream </title>
+    <artist> Edvard Munch </artist>
+    <year> 1893 </year>
+    <type> Painting </type>
+    <fileName> the_scream.jpg </fileName>
+  </image>
+
+  <image>
+    <title> The Weeping Woman </title>
+    <artist> Pablo Picasso </artist>
+    <year> 1937 </year>
+    <type> Painting </type>
+    <fileName> weeping_woman.jpg </fileName>
+  </image>
+
+  <image>
+    <title> Swans Reflecting Elephants</title>
+    <artist> Salvador Dali </artist>
+    <year> 1937 </year>
+    <type> Painting </type>
+    <fileName> swans_elephants.jpg </fileName>
+  </image>
+
+  <image>
+    <title> The Water Lily Pond </title>
+    <artist> Claude Monet </artist>
+    <year> 1899 </year>
+    <type> Painting </type>
+    <fileName> the_water_pond.jpeg </fileName>
+  </image>
+
+  <image>
+    <title> American Gothic </title>
+    <artist> Grant Wood </artist>
+    <year> 1930 </year>
+    <type> Painting </type>
+    <fileName> american_gothic.jpg </fileName>
+  </image>
+
+  <image>
+    <title> Color Spectrum </title>
+    <fileName> hsv_750x300.jpg </fileName>
+  </image>
+
+  </collection>

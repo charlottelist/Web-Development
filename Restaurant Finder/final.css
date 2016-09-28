@@ -1,0 +1,163 @@
+h1 {
+  text-align: center;
+  color: navy;
+  font: bold 35px Verdana, Geneva, sans-serif;
+}
+body {
+  background: lightblue;
+}
+
+div {
+  text-align: center;
+}
+
+.header {
+  background: white;
+  display: inline-block;
+  border-radius: 15px;
+  width: 80%;
+  position: relative;
+  margin: auto;
+}
+
+.login {
+  background: white;
+  display: inline-block;
+  border-radius: 15px;
+  width: 80%;
+  position: relative;
+  margin: auto;
+  height: 60%;
+  margin-top: 20px;
+}
+
+.nav {
+  text-align: center;
+  font: bold 14px Verdana, Geneva, sans-serif;
+  color: white;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.about {
+  color: navy;
+  background-color: white;
+  font: 14px Verdana, Geneva, sans-serif;
+  text-align: center;
+  width: 80%;
+  position: relative;
+  margin: auto;
+  border-radius: 15px;
+}
+.reviewBox {
+  color: navy;
+  background-color: white;
+  font: 14px Verdana, Geneva, sans-serif;
+  text-align: center;
+  width: 80%;
+  position: relative;
+  margin: auto;
+  border-radius: 15px;
+}
+
+img {
+  position:relative;
+  display: inline-flex;
+}
+
+.comments {
+  height: 10em;
+  width: 20em;
+}
+
+.ltext {
+  text-align: center;
+  font: bold 14px Verdana, Geneva, sans-serif;
+  color: navy;
+}
+
+.subtitle {
+  text-align: center;
+  font: bold 18px Verdana, Geneva, sans-serif;
+  color: navy;
+}
+.menu {
+  margin-top: 30px;
+  text-align: center;
+  background-color: navy;
+
+}
+.meal {
+  width: 20em;
+  height: 4em;
+}
+form {
+  color: navy;
+  font: bold 14px Verdana, Geneva, sans-serif;
+}
+input {
+  height: 2em;
+  width: 20em;
+}
+button {
+  height:2em;
+  font-size:.9em;
+  margin:1px;
+  font-family: "Verdana", Geneva, sans-serif;
+  color: navy;
+  background-color: white;
+  border-radius: 20px;
+
+}
+
+.mapBox {
+  color: navy;
+  background-color: white;
+  font: 14px Verdana, Geneva, sans-serif;
+  text-align: center;
+
+  position: relative;
+
+  border-radius: 15px;
+  padding: 10px;
+  width:600px;
+  height:400px;
+  margin: auto;
+}
+
+table, td {
+  padding: 5px;
+  margin: 0 auto;
+  border: 1px solid lightblue;
+  border-collapse: collapse;
+  font: 14px verdana, sans-serif;
+  color: navy;
+  text-align: center;
+}
+
+.tableC {
+
+    padding: 5px;
+    margin: 0 auto;
+    border: 1px solid lightblue;
+    font: 14px verdana, sans-serif;
+    color: navy;
+    text-align: center;
+    width: 80%;
+}
+
+.doc {
+  font: 14px verdana, sans-serif;
+  color: navy;
+}
+
+.documentation {
+  display: inline-flex;
+  float: right;
+}
+
+.tableC tr:first-child td{
+  text-align: center;
+  font-weight: bold;
+
+}
